@@ -27,7 +27,6 @@ class Haxe {
     }
 
     static public function toPhp($value, $version = 4) {
-        //var_dump($value);
         switch($version) {
             case 3: return self::toPhpV3($value);
             default: return self::toPhpV4($value);
