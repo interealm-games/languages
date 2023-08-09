@@ -20,7 +20,13 @@ class Haxe {
         $converted = $value;
 
         if(is_array($value)) {
-            $converted = Array_hx::wrap($value);
+            // requires PHP 8.1
+            if (array_is_list($value)) {
+                $converted = Array_hx::wrap(array_map('self::toHaxeV4', $value));
+            } else {
+                $converted = new \haxe\ds\StringMap();
+                $converted->data = $value;
+            }
         }
 
         return $converted;
@@ -66,9 +72,13 @@ class Haxe {
                         $converted = array_map(array('self','toPhpV4'), $value->arr);
                         break;
                     //case 'php\_Boot\HxAnon' :
+                    case 'haxe\ds\StringMap' :
+                        $converted = (array)$value->data;
                     default :
                         if(property_exists($value, 'arr')) {
                             $converted = array_map(array('self','toPhpV4'), $value->arr);
+                        } elseif(property_exists($value, 'data')) {
+                            $converted = (array)$value->data;
                         } else {
                             //$converted = array_map(array('Haxe','toPhpV4'), $value->a);
                             $converted = new \stdClass();
